@@ -21,10 +21,6 @@ function ShipEntity.new(args)
     entity.leftInput = false
     entity.rightInput = false
 
-    entity.respawnPosition = {unpack(entity.position)}
-    entity.respawnAngle = args.angle or 0
-    entity.respawnVelocity = {unpack(entity.velocity)}
-
     entity.gravity = {0, 0}
 
     local angle = 2 * math.pi / 3
@@ -39,6 +35,10 @@ end
 
 function ShipEntity:getType()
     return "ship"
+end
+
+function ShipEntity:create()
+    self:spawn()
 end
 
 function ShipEntity:update(dt)
@@ -82,22 +82,75 @@ end
 
 function ShipEntity:updateCollision(dt)
     local dead = false
+
     for entity, _ in pairs(self.game.entities) do
         if entity:getType() == "planet" then
             local x1, y1 = unpack(self.position)
             local x2, y2 = unpack(entity.position)
             local squaredDistance = utils.getSquaredDistance(x1, y1, x2, y2)
             if squaredDistance < entity.radius * entity.radius then
-                dead = true
+                local data = entity:getCollisionData()
+                local u, v = entity:getCollisionPoint(x1, y1) 
+                local density = utils.sampleTextureAlpha(data, u, v)
+                dead = dead or (density > 0.5)
+            end
+
+            if not dead and squaredDistance < 0.5 * 0.5 * entity.radius * entity.radius then
+                entity:connect()
             end
         end
     end
 
-    if false and dead then
-        self.position = {unpack(self.respawnPosition)}
-        self.angle = self.respawnAngle
-        self.velocity = {unpack(self.respawnVelocity)}
+    if dead then
+        self:spawn()
     end
+end
+
+function ShipEntity:spawn()
+    local entity = self:disconnectRandomPlanet() or self:getRandomPlanet()
+
+    self.angle = 2 * math.pi * love.math.random()
+
+    local orbitalAngle = 2 * math.pi * love.math.random()
+    local directionX, directionY = math.cos(orbitalAngle), math.sin(orbitalAngle)
+    local x0, y0 = unpack(entity.position)
+    local distance = 1.5 * entity.radius
+    local x, y = x0 + distance * directionX, y0 + distance * directionY
+    self.position = {x, y}
+
+    local mass = entity:getMass()
+    local orbitalVelocity = utils.getOrbitalVelocity(mass, distance)
+    local orbitalSign = utils.getRandomSign()
+    local dx0, dy0 = entity:getVelocity()
+    self.velocity = {dx0 + orbitalSign * -directionY, dy0 + orbitalSign * directionX}
+end
+
+function ShipEntity:getRandomPlanet()
+    local entities = {}
+    for entity, _ in pairs(self.game.entities) do
+        if entity:getType() == "planet" and entity.planetType == "planet" and
+            entity.connectable then
+
+            table.insert(entities, entity)
+        end
+    end
+    return utils.getRandomValue(entities)
+end
+
+function ShipEntity:disconnectRandomPlanet()
+    local entities = {}
+    for entity, _ in pairs(self.game.entities) do
+        if entity:getType() == "planet" and entity.planetType == "planet" and
+            entity.connected then
+
+            table.insert(entities, entity)
+        end
+    end
+    local entity = utils.getRandomValue(entities)
+    if entity then
+        entity:disconnect()
+    end
+    return entity
 end
 
 function ShipEntity:updateCamera(dt)
@@ -143,7 +196,7 @@ function ShipEntity:draw(dt)
     love.graphics.pop()
 
     local x, y = unpack(self.position)
-    love.graphics.setColor(255, 255, 255, 63)
+    love.graphics.setColor(127, 127, 127, 63)
     love.graphics.line(x, y, x + directionX * 1e9, y + directionY * 1e9)
 end
 

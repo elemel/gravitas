@@ -4,11 +4,11 @@ local config = require "config"
 local Game = {}
 Game.__index = Game
 
-function Game.new(shader)
+function Game.new(planetShader)
     local game = {}
     setmetatable(game, Game)
 
-    game.shader = shader
+    game.planetShader = planetShader
     game.camera = Camera.new({scale = 0.0002})
 
     local circleVertices = {

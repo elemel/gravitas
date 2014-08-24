@@ -22,23 +22,31 @@ function love.load()
 
     local noiseShaderSource = love.filesystem.read("resources/shaders/noise2D.glsl")
 
-    local shader = love.graphics.newShader(noiseShaderSource .. [[
-        uniform float scale = 1;
+    local planetShader = love.graphics.newShader(noiseShaderSource .. [[
+        uniform float seed = 0;
+        uniform float radius = 1;
+        uniform float scale = 0.01;
 
         vec4 effect(vec4 color, Image image, vec2 local, vec2 screen) {
-            number noise = snoise(scale * local);
-            if (-0.25 < noise && noise < 0.25) {
-                return vec4(0.0, 0.0, 0.0, 0.0);
-            } else {
-                return color;
-            }
+            float distance = length(2.0 * local - 1.0);
+            float sphereDensity = 1.0 - smoothstep(1.0 - 10.0 / radius, 1.0 + 10.0 / radius, distance);
+
+            // Generate tunnel density.
+            float tunnelDensity = 2.0 * abs(snoise(scale * radius * local + seed));
+
+            float density = sphereDensity * tunnelDensity;
+
+            // Anti-aliasing.
+            float r = fwidth(density);
+            float a = gl_Color.a * smoothstep(0.5 - r, 0.5 + r, density);
+
+            return vec4(color.rgb, color.a * a);
         }
     ]])
 
-    game = Game.new(shader)
+    game = Game.new(planetShader)
 
     local starArgs = {}
-    starArgs.planetType = "star"
     starArgs.density = 1000
     starArgs.radius = config.minStarRadius + (config.maxStarRadius - config.minStarRadius) * love.math.random()
 
@@ -48,14 +56,15 @@ function love.load()
     starArgs.angularVelocity = utils.getOrbitalVelocity(mass, starArgs.radius) / starArgs.radius
 
     local temperature = math.random(0, 511)
-    starArgs.color = {255, utils.clamp(temperature, 0, 255), utils.clamp(temperature - 256, 0, 255), 255}
+    starArgs.color = {255, 127, 0, 255}
 
     local starEntity = PlanetEntity.new(starArgs)
     game:addEntity(starEntity)
 
-    local starSystemRadius = starEntity.radius * 3
+    local starSystemRadius = starEntity.radius * utils.getRandomFloat(2, 5)
 
-    local planetCount = love.math.random(config.minPlanetCount, config.maxPlanetCount)
+    local planetCount = 3
+
     for i = 1, planetCount do
         local planetArgs = {}
         planetArgs.radius = config.minPlanetRadius + (config.maxPlanetRadius - config.minPlanetRadius) * love.math.random()
@@ -63,16 +72,9 @@ function love.load()
 
         planetArgs.angle = 2 * math.pi * love.math.random()
 
-        planetArgs.color = {
-            love.math.random(0, 255),
-            love.math.random(0, 255),
-            love.math.random(0, 255),
-            255,
-        }
-
         planetArgs.parentEntity = starEntity
-        planetArgs.orbitalRadius = starSystemRadius + 3 * planetArgs.radius
-        starSystemRadius = starSystemRadius + 6 * planetArgs.radius
+        planetArgs.orbitalRadius = starSystemRadius + utils.getRandomFloat(2, 5) * planetArgs.radius
+        starSystemRadius = planetArgs.orbitalRadius + utils.getRandomFloat(2, 5) * planetArgs.radius
         local orbitalSign = utils.getRandomSign()
         planetArgs.orbitalVelocity = orbitalSign * utils.getOrbitalVelocity(starEntity:getMass(), planetArgs.orbitalRadius)
         planetArgs.orbitalAngle = 2 * math.pi * love.math.random()
@@ -80,15 +82,18 @@ function love.load()
         local mass = utils.getSphereMass(planetArgs.radius, planetArgs.density)
         planetArgs.angularVelocity = utils.getOrbitalVelocity(mass, planetArgs.radius) / planetArgs.radius
 
+        local hue = love.math.random()
+        local saturation = utils.getRandomFloat(0.5, 1)
+        local lightness = utils.getRandomFloat(0.25, 0.75)
+        local red, green, blue = utils.toRgbFromHsl(hue, saturation, lightness)
+        planetArgs.color = {utils.toByteFromFloat(red, green, blue, 1)}
+
         local planetEntity = PlanetEntity.new(planetArgs)
         game:addEntity(planetEntity)
     end
 
     local shipOrbitalAngle = 2 * math.pi * love.math.random()
-    local shipEntity = ShipEntity.new({
-        position = {starSystemRadius * math.cos(shipOrbitalAngle), starSystemRadius * math.sin(shipOrbitalAngle)},
-        angle = shipOrbitalAngle + math.pi,
-    })
+    local shipEntity = ShipEntity.new()
     game:addEntity(shipEntity)
 end
 
@@ -98,4 +103,12 @@ end
 
 function love.draw()
     game:draw()
+end
+
+function love.keypressed(key, isrepeat)
+    if key == "return" and not isreapeat then
+        local screenshot = love.graphics.newScreenshot()
+        screenshot:encode("screenshot.png")
+        print("Saved screenshot: " .. love.filesystem.getSaveDirectory() .. "/screenshot.png")
+    end
 end
