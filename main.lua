@@ -5,6 +5,8 @@ local ShipEntity = require "ShipEntity"
 local utils = require "utils"
 
 function love.load()
+    love.mouse.setVisible(false)
+
     local windowConfig = config.window or {}
 
     local windowWidth, windowHeight = unpack(windowConfig.size or {256, 256})
