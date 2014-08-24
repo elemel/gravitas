@@ -18,9 +18,25 @@ function love.load()
 
     love.window.setMode(windowWidth, windowHeight, windowFlags)
 
-    game = Game.new()
+    local noiseShaderSource = love.filesystem.read("resources/shaders/noise2D.glsl")
+
+    local shader = love.graphics.newShader(noiseShaderSource .. [[
+        uniform float scale = 1;
+
+        vec4 effect(vec4 color, Image image, vec2 local, vec2 screen) {
+            number noise = snoise(scale * local);
+            if (-0.25 < noise && noise < 0.25) {
+                return vec4(0.0, 0.0, 0.0, 0.0);
+            } else {
+                return color;
+            }
+        }
+    ]])
+
+    game = Game.new(shader)
 
     local starArgs = {}
+    starArgs.planetType = "star"
     starArgs.density = 1000
     starArgs.radius = config.minStarRadius + (config.maxStarRadius - config.minStarRadius) * love.math.random()
 

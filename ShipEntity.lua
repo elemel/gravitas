@@ -25,6 +25,8 @@ function ShipEntity.new(args)
     entity.respawnAngle = args.angle or 0
     entity.respawnVelocity = {unpack(entity.velocity)}
 
+    entity.gravity = {0, 0}
+
     local angle = 2 * math.pi / 3
     entity.polygon = {
         entity.radius, 0,
@@ -40,9 +42,14 @@ function ShipEntity:getType()
 end
 
 function ShipEntity:update(dt)
+    self:updateGravity(dt)
     self:updatePhysics(dt)
     self:updateCollision(dt)
     self:updateCamera(dt)
+end
+
+function ShipEntity:updateGravity(dt)
+    self.gravity = {self:getGravity()}
 end
 
 function ShipEntity:updatePhysics(dt)
@@ -54,7 +61,7 @@ function ShipEntity:updatePhysics(dt)
     local dx, dy = unpack(self.velocity)
 
     local turn = (self.leftInput and 1 or 0) - (self.rightInput and 1 or 0)
-    local thrust = (self.thrustInput and 1 or 0) / self.game.camera.scale * 0.1
+    local thrust = (self.thrustInput and 1 or 0) / self.game.camera.scale * 0.5
 
     self.angle = self.angle + turn * config.ship.turnVelocity * 2 * math.pi * dt
 
@@ -62,7 +69,7 @@ function ShipEntity:updatePhysics(dt)
     dx = dx + thrust * directionX * dt
     dy = dy + thrust * directionY * dt
 
-    local gravityX, gravityY = self:getGravity()
+    local gravityX, gravityY = unpack(self.gravity)
     dx = dx + gravityX * dt
     dy = dy + gravityY * dt
 
@@ -95,10 +102,14 @@ end
 
 function ShipEntity:updateCamera(dt)
     self.game.camera.position = self.position
+
     -- self.game.camera.angle = -0.5 * math.pi + self.angle
 
+    local gravityX, gravityY = unpack(self.gravity)
+    self.game.camera.angle = 0.5 * math.pi + math.atan2(gravityY, gravityX)
+
     local distanceCameraScale = self:getDistanceCameraScale()
-    local radiusCameraScale = 0.05 / self.radius
+    local radiusCameraScale = 0.01 / self.radius
     self.game.camera.scale = math.min(distanceCameraScale, radiusCameraScale)
 end
 
@@ -116,19 +127,22 @@ function ShipEntity:getDistanceCameraScale()
 end
 
 function ShipEntity:getDirection()
-    return math.cos(self.angle), math.sin(self.angle)
+    local gravityX, gravityY = unpack(self.gravity)
+    local gravityAngle = math.atan2(gravityY, gravityX)
+    return math.cos(gravityAngle + self.angle), math.sin(gravityAngle + self.angle)
 end
 
 function ShipEntity:draw(dt)
+    local directionX, directionY = self:getDirection()
+
     love.graphics.push()
     love.graphics.setColor(self.color)
     love.graphics.translate(unpack(self.position))
-    love.graphics.rotate(self.angle)
+    love.graphics.rotate(math.atan2(directionY, directionX))
     love.graphics.polygon("fill", self.polygon)
     love.graphics.pop()
 
     local x, y = unpack(self.position)
-    local directionX, directionY = self:getDirection()
     love.graphics.setColor(255, 255, 255, 63)
     love.graphics.line(x, y, x + directionX * 1e9, y + directionY * 1e9)
 end

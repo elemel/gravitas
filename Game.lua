@@ -1,13 +1,25 @@
 local Camera = require "Camera"
+local config = require "config"
 
 local Game = {}
 Game.__index = Game
 
-function Game.new()
+function Game.new(shader)
     local game = {}
     setmetatable(game, Game)
 
+    game.shader = shader
     game.camera = Camera.new({scale = 0.0002})
+
+    local circleVertices = {
+        {0, 0, 0, 0},
+    }
+    for i = 0, config.circleSegmentCount do
+        local angle = 2 * math.pi * i / config.circleSegmentCount
+        local x, y = math.cos(angle), math.sin(angle)
+        table.insert(circleVertices, {x, y, x, y})
+    end
+    game.circleMesh = love.graphics.newMesh(circleVertices)
 
     game.entities = {}
 

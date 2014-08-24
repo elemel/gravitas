@@ -10,6 +10,7 @@ function PlanetEntity.new(args)
 
     args = args or {}
 
+    entity.planetType = args.planetType or "planet"
     entity.radius = args.radius or 1
     entity.density = args.density or 1000
     entity.position = args.position or {0, 0}
@@ -52,9 +53,16 @@ function PlanetEntity:draw()
         love.graphics.circle("line", x0, y0, self.orbitalRadius, config.circleSegmentCount)
     end
 
-    love.graphics.setColor(unpack(self.color))
-    love.graphics.circle("line", x, y, self.radius, config.circleSegmentCount)
-    love.graphics.line(x, y, x + self.radius * directionX, y + self.radius * directionY)
+    if self.planetType == "star" then
+        love.graphics.setColor(unpack(self.color))
+        love.graphics.circle("fill", x, y, self.radius, config.circleSegmentCount)
+    else
+        love.graphics.setColor(unpack(self.color))
+        love.graphics.setShader(self.game.shader)
+        self.game.shader:send("scale", 0.005 * self.radius)
+        love.graphics.draw(self.game.circleMesh, x, y, self.angle, self.radius)
+        love.graphics.setShader(nil)
+    end
 end
 
 function PlanetEntity:getMass()

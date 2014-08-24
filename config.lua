@@ -4,7 +4,7 @@ config.window = {
 	size = {512, 512},
 
 	fsaa = 4,
-	fullscreen = true,
+	fullscreen = false,
 	fullscreentype = "desktop",
 	highdpi = true,
 	resizable = true,
