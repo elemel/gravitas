@@ -106,9 +106,13 @@ function love.draw()
 end
 
 function love.keypressed(key, isrepeat)
-    if key == "return" and not isreapeat then
+    if key == "return" and not isrepeat then
         local screenshot = love.graphics.newScreenshot()
         screenshot:encode("screenshot.png")
         print("Saved screenshot: " .. love.filesystem.getSaveDirectory() .. "/screenshot.png")
+    end
+
+    if key == "escape" and not isrepeat then
+        love.event.quit()
     end
 end
