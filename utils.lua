@@ -2,6 +2,10 @@ local config = require "config"
 
 local utils = {}
 
+function utils.round(x)
+    return math.floor(x + 0.5)
+end
+
 function utils.sign(x)
     return x < 0 and -1 or 1
 end

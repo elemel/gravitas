@@ -1,3 +1,4 @@
+local Camera = require "Camera"
 local config = require "config"
 local utils = require "utils"
 
@@ -56,12 +57,38 @@ function PlanetEntity:draw()
     if self.planetType == "star" then
         love.graphics.setColor(unpack(self.color))
         love.graphics.circle("fill", x, y, self.radius, config.circleSegmentCount)
-    else
+    elseif self.planetType == "planet" then
         love.graphics.setColor(unpack(self.color))
         love.graphics.setShader(self.game.shader)
         self.game.shader:send("scale", 0.005 * self.radius)
         love.graphics.draw(self.game.circleMesh, x, y, self.angle, self.radius)
         love.graphics.setShader(nil)
+    end
+end
+
+function PlanetEntity:debugDraw()
+    if self.planetType == "planet" then
+        if not self.debugCanvas then
+            local size = utils.clamp(utils.round(0.2 * self.radius), 16, 256)
+            self.debugCanvas = love.graphics.newCanvas(size, size)
+            self.debugCanvas:setFilter("nearest")
+            love.graphics.setColor(255, 255, 255, 255)
+            love.graphics.setCanvas(self.debugCanvas)
+            love.graphics.setShader(self.game.shader)
+            self.game.shader:send("scale", 0.005 * self.radius)
+            love.graphics.push()
+            love.graphics.origin()
+            love.graphics.draw(self.game.circleMesh, 0.5 * size, 0.5 * size, 0, 0.5 * size, 0.5 * size)
+            love.graphics.pop()
+            love.graphics.setShader(nil)
+            love.graphics.setCanvas(nil)
+        end
+
+        self.game.circleMesh:setImage(self.debugCanvas)
+        love.graphics.setColor(0, 255, 0, 127)
+        local x, y = unpack(self.position)
+        love.graphics.draw(self.game.circleMesh, x, y, self.angle, self.radius)
+        self.game.circleMesh:setImage(nil)
     end
 end
 

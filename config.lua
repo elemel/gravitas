@@ -4,7 +4,7 @@ config.window = {
 	size = {512, 512},
 
 	fsaa = 4,
-	fullscreen = true,
+	fullscreen = false,
 	fullscreentype = "desktop",
 	highdpi = true,
 	resizable = true,
@@ -15,8 +15,8 @@ config.gravitationalConstant = 0.00001
 config.minStarRadius = 1000
 config.maxStarRadius = 2000
 
-config.minPlanetCount = 2
-config.maxPlanetCount = 8
+config.minPlanetCount = 5
+config.maxPlanetCount = 10
 config.minPlanetRadius = 100
 config.maxPlanetRadius = 500
 config.minPlanetOrbitVelocity = 100

@@ -109,7 +109,7 @@ function ShipEntity:updateCamera(dt)
     self.game.camera.angle = 0.5 * math.pi + math.atan2(gravityY, gravityX)
 
     local distanceCameraScale = self:getDistanceCameraScale()
-    local radiusCameraScale = 0.01 / self.radius
+    local radiusCameraScale = 0.02 / self.radius
     self.game.camera.scale = math.min(distanceCameraScale, radiusCameraScale)
 end
 

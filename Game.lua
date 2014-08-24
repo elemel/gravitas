@@ -12,12 +12,13 @@ function Game.new(shader)
     game.camera = Camera.new({scale = 0.0002})
 
     local circleVertices = {
-        {0, 0, 0, 0},
+        {0, 0, 0.5, 0.5},
     }
     for i = 0, config.circleSegmentCount do
         local angle = 2 * math.pi * i / config.circleSegmentCount
         local x, y = math.cos(angle), math.sin(angle)
-        table.insert(circleVertices, {x, y, x, y})
+        local u, v = 0.5 * x + 0.5, 0.5 * y + 0.5
+        table.insert(circleVertices, {x, y, u, v})
     end
     game.circleMesh = love.graphics.newMesh(circleVertices)
 
@@ -46,6 +47,12 @@ function Game:draw()
     for entity, _ in pairs(self.entities) do
         if entity.draw then
             entity:draw()
+        end
+    end
+
+    for entity, _ in pairs(self.entities) do
+        if entity.debugDraw then
+            entity:debugDraw()
         end
     end
 end
