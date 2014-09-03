@@ -89,10 +89,14 @@ function ShipEntity:updateCollision(dt)
             local x2, y2 = unpack(entity.position)
             local squaredDistance = utils.getSquaredDistance(x1, y1, x2, y2)
             if squaredDistance < entity.radius * entity.radius then
-                local data = entity:getCollisionData()
-                local u, v = entity:getCollisionPoint(x1, y1) 
-                local density = utils.sampleTextureAlpha(data, u, v)
-                dead = dead or (density > 0.5)
+                if entity.planetType == "planet" then
+                    local data = entity:getCollisionData()
+                    local u, v = entity:getCollisionPoint(x1, y1) 
+                    local density = utils.sampleTextureAlpha(data, u, v)
+                    dead = dead or (density > 0.5)
+                else
+                    dead = true
+                end
             end
 
             if not dead and squaredDistance < 0.5 * 0.5 * entity.radius * entity.radius then

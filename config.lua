@@ -10,13 +10,14 @@ config.window = {
 
 config.gravitationalConstant = 0.00001
 
-config.minStarRadius = 1000
-config.maxStarRadius = 2000
+config.minStarRadius = 5000
+config.maxStarRadius = 10000
 
-config.minPlanetRadius = 100
-config.maxPlanetRadius = 500
-config.minPlanetOrbitVelocity = 100
-config.maxPlanetOrbitVelocity = 200
+config.minPlanetRadius = 1000
+config.maxPlanetRadius = 2000
+
+config.minMoonRadius = 200
+config.maxMoonRadius = 500
 
 config.circleSegmentCount = 256
 

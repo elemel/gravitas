@@ -47,6 +47,7 @@ function love.load()
     game = Game.new(planetShader)
 
     local starArgs = {}
+    starArgs.planetType = "star"
     starArgs.density = 1000
     starArgs.radius = config.minStarRadius + (config.maxStarRadius - config.minStarRadius) * love.math.random()
 
@@ -73,8 +74,8 @@ function love.load()
         planetArgs.angle = 2 * math.pi * love.math.random()
 
         planetArgs.parentEntity = starEntity
-        planetArgs.orbitalRadius = starSystemRadius + utils.getRandomFloat(2, 5) * planetArgs.radius
-        starSystemRadius = planetArgs.orbitalRadius + utils.getRandomFloat(2, 5) * planetArgs.radius
+        planetArgs.orbitalRadius = starSystemRadius + utils.getRandomFloat(5, 10) * planetArgs.radius
+        starSystemRadius = planetArgs.orbitalRadius + utils.getRandomFloat(5, 10) * planetArgs.radius
         local orbitalSign = utils.getRandomSign()
         planetArgs.orbitalVelocity = orbitalSign * utils.getOrbitalVelocity(starEntity:getMass(), planetArgs.orbitalRadius)
         planetArgs.orbitalAngle = 2 * math.pi * love.math.random()
@@ -90,6 +91,33 @@ function love.load()
 
         local planetEntity = PlanetEntity.new(planetArgs)
         game:addEntity(planetEntity)
+
+        if i == planetCount then
+            local moonArgs = {}
+
+            moonArgs.radius = config.minMoonRadius + (config.maxMoonRadius - config.minMoonRadius) * love.math.random()
+            moonArgs.density = 1000
+
+            moonArgs.angle = 2 * math.pi * love.math.random()
+
+            moonArgs.parentEntity = planetEntity
+            moonArgs.orbitalRadius = planetArgs.radius + utils.getRandomFloat(5, 10) * moonArgs.radius
+            local orbitalSign = utils.getRandomSign()
+            moonArgs.orbitalVelocity = orbitalSign * utils.getOrbitalVelocity(planetEntity:getMass(), moonArgs.orbitalRadius)
+            moonArgs.orbitalAngle = 2 * math.pi * love.math.random()
+
+            local mass = utils.getSphereMass(moonArgs.radius, moonArgs.density)
+            moonArgs.angularVelocity = utils.getOrbitalVelocity(mass, moonArgs.radius) / moonArgs.radius
+
+            local hue = love.math.random()
+            local saturation = utils.getRandomFloat(0.5, 1)
+            local lightness = utils.getRandomFloat(0.25, 0.75)
+            local red, green, blue = utils.toRgbFromHsl(hue, saturation, lightness)
+            moonArgs.color = {utils.toByteFromFloat(red, green, blue, 1)}
+
+            local moonEntity = PlanetEntity.new(moonArgs)
+            game:addEntity(moonEntity)
+        end
     end
 
     local shipOrbitalAngle = 2 * math.pi * love.math.random()

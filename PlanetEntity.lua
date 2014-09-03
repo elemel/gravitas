@@ -161,7 +161,7 @@ function PlanetEntity:draw()
 end
 
 function PlanetEntity:getCollisionData()
-    if not self.collisionData then
+    if not self.collisionData and self.planetType == "planet" then
         self:updateCollisionData()
     end
     return self.collisionData
