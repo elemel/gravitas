@@ -136,18 +136,9 @@ function PlanetEntity:draw()
 
     if self.parentEntity then
         local x0, y0 = unpack(self.parentEntity.position)
-        if self.connected then
-            local red, green, blue, alpha = unpack(self.color)
-            love.graphics.setColor(red, green, blue, 127)
-            if self.parentEntity.connected then
-                love.graphics.circle("line", x0, y0, self.orbitalRadius, config.circleSegmentCount)
-            else
-                love.graphics.line(x, y, x0, y0)
-            end
-        else
-            love.graphics.setColor(127, 127, 127, 63)
-            love.graphics.circle("line", x0, y0, self.orbitalRadius, config.circleSegmentCount)
-        end
+        love.graphics.setColor(127, 127, 127, 127)
+        love.graphics.circle("line", x0, y0, self.orbitalRadius, config.circleSegmentCount)
+        love.graphics.line(x, y, x0, y0)
     end
 
     if self.planetType == "planet" and not self.connected and self.connectable then

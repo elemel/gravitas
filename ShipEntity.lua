@@ -196,7 +196,7 @@ function ShipEntity:draw(dt)
     love.graphics.pop()
 
     local x, y = unpack(self.position)
-    love.graphics.setColor(127, 127, 127, 63)
+    love.graphics.setColor(127, 127, 127, 127)
     love.graphics.line(x, y, x + directionX * 1e9, y + directionY * 1e9)
 end
 
