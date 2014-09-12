@@ -171,16 +171,23 @@ function ShipEntity:updateCamera(dt)
 end
 
 function ShipEntity:getDistanceCameraScale()
-    local totalInvSquaredDistance = 0
+    local minDistance = math.huge
     for entity, _ in pairs(self.game.entities) do
         if entity:getType() == "planet" then
             local x1, y1 = unpack(self.position)
             local x2, y2 = unpack(entity.position)
-            local distance = math.max(0, utils.getDistance(x1, y1, x2, y2) - entity.radius - self.radius)
-            totalInvSquaredDistance = totalInvSquaredDistance + 1 / (distance * distance)
+            local distance = math.max(0, utils.getDistance(x1, y1, x2, y2) - entity.radius)
+            minDistance = math.min(minDistance, distance)
+        elseif entity:getType() == "asteroidBelt" then
+            local x1, y1 = unpack(self.position)
+            local x2, y2 = unpack(entity.position)
+            local centerDistance = utils.getDistance(x1, y1, x2, y2)
+            local torusCenterDistance = math.abs(centerDistance - entity.majorRadius)
+            local distance = math.max(0, torusCenterDistance - entity.minorRadius)
+            minDistance = math.min(minDistance, distance)
         end
     end
-    return 0.2 * math.sqrt(totalInvSquaredDistance)
+    return 0.2 / math.max(1, minDistance)
 end
 
 function ShipEntity:getDirection()

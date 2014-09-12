@@ -1,3 +1,4 @@
+local AsteroidBeltEntity = require "AsteroidBeltEntity"
 local config = require "config"
 local Game = require "Game"
 local PlanetEntity = require "PlanetEntity"
@@ -22,10 +23,12 @@ function love.load()
 
     local noiseShaderSource = love.filesystem.read("resources/shaders/noise2D.glsl")
     local planetShaderSource = love.filesystem.read("resources/shaders/planet.glsl")
+    local asteroidBeltShaderSource = love.filesystem.read("resources/shaders/asteroidBelt.glsl")
 
     local planetShader = love.graphics.newShader(noiseShaderSource .. planetShaderSource)
-
-    game = Game.new(planetShader)
+    local asteroidBeltShader = love.graphics.newShader(noiseShaderSource .. asteroidBeltShaderSource)
+    local shaders = {planet = planetShader, asteroidBelt = asteroidBeltShader}
+    game = Game.new(shaders)
 
     local starArgs = {}
     starArgs.planetType = "star"
@@ -45,9 +48,7 @@ function love.load()
 
     local starSystemRadius = starEntity.radius * utils.getRandomFloat(2, 5)
 
-    local planetCount = 3
-
-    for i = 1, planetCount do
+    for i = 1, 3 do
         local planetArgs = {}
         planetArgs.radius = config.minPlanetRadius + (config.maxPlanetRadius - config.minPlanetRadius) * love.math.random()
         planetArgs.density = 1000
@@ -73,7 +74,17 @@ function love.load()
         local planetEntity = PlanetEntity.new(planetArgs)
         game:addEntity(planetEntity)
 
-        if i == planetCount then
+        if i == 2 then
+            local asteroidBeltArgs = {}
+            asteroidBeltArgs.majorRadius = 2 * planetEntity.radius
+            asteroidBeltArgs.minorRadius = 100
+            asteroidBeltArgs.stepRadius = 100
+            asteroidBeltArgs.parentEntity = planetEntity
+            local asteroidBeltEntity = AsteroidBeltEntity.new(asteroidBeltArgs)
+            game:addEntity(asteroidBeltEntity)
+        end
+
+        if i == 3 then
             local moonArgs = {}
 
             moonArgs.radius = config.minMoonRadius + (config.maxMoonRadius - config.minMoonRadius) * love.math.random()

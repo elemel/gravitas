@@ -1,7 +1,7 @@
 local config = {}
 
 config.window = {
-	size = {512, 512},
+	size = {1024, 512},
 
 	fullscreen = true,
 	fullscreentype = "desktop",
@@ -27,6 +27,7 @@ config.ship = {
 
 config.debugDraw = {
     planet = false,
+    -- asteroidBelt = true,
 }
 
 return config
