@@ -79,6 +79,10 @@ function love.load()
             asteroidBeltArgs.majorRadius = 2 * planetEntity.radius
             asteroidBeltArgs.minorRadius = 100
             asteroidBeltArgs.stepRadius = 100
+            local angularVelocitySign = utils.getRandomSign()
+            asteroidBeltArgs.angularVelocity = angularVelocitySign *
+                utils.getOrbitalVelocity(planetEntity:getMass(), asteroidBeltArgs.majorRadius) /
+                asteroidBeltArgs.majorRadius
             asteroidBeltArgs.parentEntity = planetEntity
             local asteroidBeltEntity = AsteroidBeltEntity.new(asteroidBeltArgs)
             game:addEntity(asteroidBeltEntity)

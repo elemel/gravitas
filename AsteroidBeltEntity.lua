@@ -105,4 +105,8 @@ function AsteroidBeltEntity:getLocalNoise(x, y)
     return torusDensity * tunnelDensity;
 end
 
+function AsteroidBeltEntity:getNoise(x, y)
+    return self:getLocalNoise(self:getLocalPoint(x, y))
+end
+
 return AsteroidBeltEntity

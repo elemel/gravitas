@@ -103,6 +103,12 @@ function ShipEntity:updateCollision(dt)
                 entity:connect()
             end
         end
+
+        if entity:getType() == "asteroidBelt" then
+            local x, y = unpack(self.position)
+            local noise = entity:getNoise(x, y)
+            dead = dead or (noise > 0.5)
+        end
     end
 
     if dead then
@@ -187,7 +193,7 @@ function ShipEntity:getDistanceCameraScale()
             minDistance = math.min(minDistance, distance)
         end
     end
-    return 0.2 / math.max(1, minDistance)
+    return 0.2 / minDistance
 end
 
 function ShipEntity:getDirection()

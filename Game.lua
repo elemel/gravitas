@@ -29,7 +29,31 @@ end
 
 function Game:update(dt)
     for entity, _ in pairs(self.entities) do
-        if entity.update then
+        if entity:getType() == "star" and entity.update then
+            entity:update(dt)
+        end
+    end
+
+    for entity, _ in pairs(self.entities) do
+        if entity:getType() == "planet" and entity.update then
+            entity:update(dt)
+        end
+    end
+
+    for entity, _ in pairs(self.entities) do
+        if entity:getType() == "moon" and entity.update then
+            entity:update(dt)
+        end
+    end
+
+    for entity, _ in pairs(self.entities) do
+        if entity:getType() == "asteroidBelt" and entity.update then
+            entity:update(dt)
+        end
+    end
+
+    for entity, _ in pairs(self.entities) do
+        if entity:getType() == "ship" and entity.update then
             entity:update(dt)
         end
     end
