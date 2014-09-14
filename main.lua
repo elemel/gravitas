@@ -95,6 +95,7 @@ function love.load()
         if i == 3 then
             local moonArgs = {}
 
+            moonArgs.planetType = "moon"
             moonArgs.radius = config.minMoonRadius + (config.maxMoonRadius - config.minMoonRadius) * love.math.random()
             moonArgs.density = 1000
 

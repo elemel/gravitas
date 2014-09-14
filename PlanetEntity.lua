@@ -146,7 +146,7 @@ function PlanetEntity:draw()
         -- love.graphics.line(x, y, x0, y0)
     end
 
-    if self.planetType == "planet" and not self.connected and self.connectable then
+    if (self.planetType == "planet" or self.planetType == "moon") and not self.connected and self.connectable then
         local red, green, blue, alpha = unpack(self.connectedColor)
         love.graphics.setColor(red, green, blue, 255)
         love.graphics.circle("line", x, y, 0.5 * self.radius, config.circleSegmentCount)
@@ -155,12 +155,12 @@ function PlanetEntity:draw()
     if self.planetType == "star" then
         love.graphics.setColor(unpack(self.color))
         love.graphics.setShader(self.game.shaders.star)
-        self.game.shaders.star:send("time", self.time)
+        self.game.shaders.star:send("time", 0.5 * self.time)
         self.game.shaders.star:send("radius", self.radius)
         self.game.shaders.star:send("stepRadius", self.stepRadius)
         love.graphics.draw(self.mesh, x, y, self.angle, self.radius + self.stepRadius)
         love.graphics.setShader()
-    elseif self.planetType == "planet" then
+    elseif self.planetType == "planet" or self.planetType == "moon" then
         love.graphics.setColor(unpack(self.color))
         love.graphics.setShader(self.game.shaders.planet)
         self.game.shaders.planet:send("seed", self.seed)
@@ -171,7 +171,7 @@ function PlanetEntity:draw()
 end
 
 function PlanetEntity:getCollisionData()
-    if not self.collisionData and self.planetType == "planet" then
+    if not self.collisionData and (self.planetType == "planet" or self.planetType == "moon") then
         self:updateCollisionData()
     end
     return self.collisionData
