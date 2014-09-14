@@ -1,10 +1,11 @@
-uniform float seed = 0;
-uniform float radius = 1;
+uniform float seed = 0.0;
+uniform float radius = 1.0;
 uniform float scale = 0.01;
+uniform float stepRadius = 50.0;
 
 vec4 effect(vec4 color, Image image, vec2 local, vec2 screen) {
     float distance = length(2.0 * local - 1.0);
-    float sphereDensity = 1.0 - smoothstep(1.0 - 50.0 / radius, 1.0 + 50.0 / radius, distance);
+    float sphereDensity = 1.0 - smoothstep(1.0 - stepRadius / radius, 1.0 + stepRadius / radius, distance);
 
     // Generate tunnel density.
     float tunnelDensity = 2.0 * abs(snoise(scale * radius * local + seed));

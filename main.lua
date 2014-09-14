@@ -21,13 +21,17 @@ function love.load()
 
     love.window.setMode(windowWidth, windowHeight, windowFlags)
 
-    local noiseShaderSource = love.filesystem.read("resources/shaders/noise2D.glsl")
+    local noise2DShaderSource = love.filesystem.read("resources/shaders/noise2D.glsl")
+    local noise3DShaderSource = love.filesystem.read("resources/shaders/noise3D.glsl")
+
     local planetShaderSource = love.filesystem.read("resources/shaders/planet.glsl")
     local asteroidBeltShaderSource = love.filesystem.read("resources/shaders/asteroidBelt.glsl")
+    local starShaderSource = love.filesystem.read("resources/shaders/star.glsl")
 
-    local planetShader = love.graphics.newShader(noiseShaderSource .. planetShaderSource)
-    local asteroidBeltShader = love.graphics.newShader(noiseShaderSource .. asteroidBeltShaderSource)
-    local shaders = {planet = planetShader, asteroidBelt = asteroidBeltShader}
+    local planetShader = love.graphics.newShader(noise2DShaderSource .. planetShaderSource)
+    local asteroidBeltShader = love.graphics.newShader(noise2DShaderSource .. asteroidBeltShaderSource)
+    local starShader = love.graphics.newShader(noise3DShaderSource .. starShaderSource)
+    local shaders = {planet = planetShader, asteroidBelt = asteroidBeltShader, star = starShader}
     game = Game.new(shaders)
 
     local starArgs = {}

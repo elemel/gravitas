@@ -13,6 +13,7 @@ function PlanetEntity.new(args)
 
     entity.planetType = args.planetType or "planet"
     entity.radius = args.radius or 1
+    entity.stepRadius = args.stepRadius or 0.25 * entity.radius
     entity.density = args.density or 1000
     entity.position = args.position or {0, 0}
     entity.angle = args.angle or 0
@@ -31,6 +32,8 @@ function PlanetEntity.new(args)
     entity.disconnectionTime = 0
     entity.connectedColor = entity.color
     entity.disconnectedColor = {127, 127, 127, 255}
+
+    entity.time = 0
 
     return entity
 end
@@ -56,6 +59,8 @@ function PlanetEntity:create()
 end
 
 function PlanetEntity:update(dt)
+    self.time = self.time + dt
+
     self:updatePhysics(dt)
     self:updateColor(dt)
 end
@@ -138,7 +143,7 @@ function PlanetEntity:draw()
         local x0, y0 = unpack(self.parentEntity.position)
         love.graphics.setColor(127, 127, 127, 127)
         love.graphics.circle("line", x0, y0, self.orbitalRadius, config.circleSegmentCount)
-        love.graphics.line(x, y, x0, y0)
+        -- love.graphics.line(x, y, x0, y0)
     end
 
     if self.planetType == "planet" and not self.connected and self.connectable then
@@ -149,14 +154,19 @@ function PlanetEntity:draw()
 
     if self.planetType == "star" then
         love.graphics.setColor(unpack(self.color))
-        love.graphics.circle("fill", x, y, self.radius, config.circleSegmentCount)
+        love.graphics.setShader(self.game.shaders.star)
+        self.game.shaders.star:send("time", self.time)
+        self.game.shaders.star:send("radius", self.radius)
+        self.game.shaders.star:send("stepRadius", self.stepRadius)
+        love.graphics.draw(self.mesh, x, y, self.angle, self.radius + self.stepRadius)
+        love.graphics.setShader()
     elseif self.planetType == "planet" then
         love.graphics.setColor(unpack(self.color))
         love.graphics.setShader(self.game.shaders.planet)
         self.game.shaders.planet:send("seed", self.seed)
         self.game.shaders.planet:send("radius", self.radius)
         love.graphics.draw(self.mesh, x, y, self.angle, self.radius)
-        love.graphics.setShader(nil)
+        love.graphics.setShader()
     end
 end
 
